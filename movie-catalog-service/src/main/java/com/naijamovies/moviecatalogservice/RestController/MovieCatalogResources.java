@@ -15,6 +15,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import com.naijamovies.moviecatalogservice.Entity.CatalogItem;
 import com.naijamovies.moviecatalogservice.Entity.Movie;
 import com.naijamovies.moviecatalogservice.Entity.Rating;
+import com.naijamovies.moviecatalogservice.Entity.UserRating;
 
 @RestController
 @RequestMapping("/catalog")
@@ -30,22 +31,15 @@ public class MovieCatalogResources {
 	@RequestMapping("/{userId}")
 	public List<CatalogItem> getCatalog(@PathVariable("userId") String userId){
 		
-		
-//		WebClient.Builder
-		
 		//get all rated movie IDs
-		List<Rating> ratings = Arrays.asList(
-				new Rating("1234", 4),
-				new Rating("5789", 3));
-				
-		//for each movie ID, call movie info service and get details
-		
-		//put them all together
-		return ratings.stream()
+		UserRating ratings = restTemplate.getForObject("http://localhost:8090/ratingsdata/users/" + userId, UserRating.class);
+		return ratings.getUserRating().stream()
                 .map(rating -> {
                 	//Using Rest Template
+                	//for each movie ID, call movie info service and get details
                     Movie movie = restTemplate.getForObject("http://localhost:8089/movies/" + rating.getMovieId(), Movie.class);
-                	return new CatalogItem(movie.getName(), "Description", rating.getRating());
+                  //put them all together
+                    return new CatalogItem(movie.getName(), "Description", rating.getRating());
                 })
                 .collect(Collectors.toList());
 

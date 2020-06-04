@@ -44,13 +44,7 @@ public class MovieCatalogResources {
 		return ratings.stream()
                 .map(rating -> {
                 	//Using Rest Template
-//                    Movie movie = restTemplate.getForObject("http://localhost:8089/movies/" + rating.getMovieId(), Movie.class);
-                    
-                	//Using WebClient
-                	Movie movie = webClientBuilder.build()
-                			.get()
-                			.uri("http://localhost:8089/movies/" + rating.getMovieId())
-                			.retrieve().bodyToMono(Movie.class).block();
+                    Movie movie = restTemplate.getForObject("http://localhost:8089/movies/" + rating.getMovieId(), Movie.class);
                 	return new CatalogItem(movie.getName(), "Description", rating.getRating());
                 })
                 .collect(Collectors.toList());

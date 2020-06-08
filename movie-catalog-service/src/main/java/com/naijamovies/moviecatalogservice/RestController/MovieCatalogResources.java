@@ -1,5 +1,6 @@
 package com.naijamovies.moviecatalogservice.RestController;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -13,6 +14,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.naijamovies.moviecatalogservice.Entity.CatalogItem;
 import com.naijamovies.moviecatalogservice.Entity.Movie;
+import com.naijamovies.moviecatalogservice.Entity.MovieSummary;
 import com.naijamovies.moviecatalogservice.Entity.UserRating;
 
 @RestController
@@ -31,6 +33,7 @@ public class MovieCatalogResources {
 //	private DiscoveryClient discoveryClient; 
 
 	@RequestMapping("/{userId}")
+	@HystrixCommand(fallbackMethod = "getFallbackCatalog")
 	public List<CatalogItem> getCatalog(@PathVariable("userId") String userId){
 		
 		//get all rated movie IDs
@@ -39,11 +42,15 @@ public class MovieCatalogResources {
                 .map(rating -> {
                 	//Using Rest Template
                 	//for each movie ID, call movie info service and get details
-                    Movie movie = restTemplate.getForObject("http://movie-info-service:8089/movies/" + rating.getMovieId(), Movie.class);
+                    MovieSummary movie = restTemplate.getForObject("http://movie-info-service:8089/movies/" + rating.getMovieId(), MovieSummary.class);
                   //put them all together
-                    return new CatalogItem(movie.getName(), "Description", rating.getRating());
+                    return new CatalogItem(movie.getTitle(), movie.getOverview(), rating.getRating());
                 })
                 .collect(Collectors.toList());
-
 	}
+	
+	public List<CatalogItem> getFallbackCatalog(@PathVariable("userId") String userId){
+		return Arrays.asList(new CatalogItem("No movie", "", 0));
+	}
+		
 }

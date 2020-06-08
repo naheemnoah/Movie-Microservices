@@ -13,7 +13,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.naijamovies.moviecatalogservice.Entity.CatalogItem;
 import com.naijamovies.moviecatalogservice.Entity.MovieSummary;
+import com.naijamovies.moviecatalogservice.Entity.Rating;
 import com.naijamovies.moviecatalogservice.Entity.UserRating;
+import com.naijamovies.moviecatalogservice.Services.MovieInfo;
+import com.naijamovies.moviecatalogservice.Services.UserRatingInfo;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 
 @RestController
@@ -24,32 +27,32 @@ public class MovieCatalogResources {
 	@Autowired
 	private RestTemplate restTemplate;
 	
+	//Reactive programming instead of RestTemplate
 	@Autowired
 	private WebClient.Builder webClientBuilder;
 	
 	//Advance LoadBalancing
 //	@Autowired
 //	private DiscoveryClient discoveryClient; 
+	
+	@Autowired
+	MovieInfo movieInfo;
+	
+	@Autowired
+	UserRatingInfo userRatingInfo;
 
 	@RequestMapping("/{userId}")
-	@HystrixCommand(fallbackMethod = "getFallbackCatalog")
 	public List<CatalogItem> getCatalog(@PathVariable("userId") String userId){
 		
 		//get all rated movie IDs
-		UserRating ratings = restTemplate.getForObject("http://ratings-data-service/ratingsdata/users/" + userId, UserRating.class);
-		return ratings.getUserRating().stream()
+		UserRating ratings = userRatingInfo.getUserRating(userId);
+				return ratings.getUserRating().stream()
                 .map(rating -> {
-                	//Using Rest Template
-                	//for each movie ID, call movie info service and get details
-                    MovieSummary movie = restTemplate.getForObject("http://movie-info-service:8089/movies/" + rating.getMovieId(), MovieSummary.class);
-                  //put them all together
-                    return new CatalogItem(movie.getTitle(), movie.getOverview(), rating.getRating());
-                })
+                	return movieInfo.getCatalogItem(rating);
+               })
                 .collect(Collectors.toList());
 	}
 	
-	public List<CatalogItem> getFallbackCatalog(@PathVariable("userId") String userId){
-		return Arrays.asList(new CatalogItem("No movie", "", 0));
-	}
+	
 		
 }

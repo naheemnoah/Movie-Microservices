@@ -24,7 +24,7 @@ public class UserRatingInfo {
 	
 	public UserRating getFallbackUserRating(@PathVariable("userId") String userId) {
 		UserRating userRating = new UserRating();
-//		userRating.setUserId(userId);
+		userRating.setUserId(userId);
 		userRating.setUserRating(Arrays.asList(
 				new Rating("0", 0)
 				));

@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.naijamovies.moviecatalogservice.Entity.CatalogItem;
+import com.naijamovies.moviecatalogservice.Entity.Movie;
 import com.naijamovies.moviecatalogservice.Entity.MovieSummary;
 import com.naijamovies.moviecatalogservice.Entity.Rating;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
@@ -17,7 +18,7 @@ public class MovieInfo {
 	
 	@HystrixCommand(fallbackMethod = "getFallbackCatalogItem")
 	public CatalogItem getCatalogItem(Rating rating) {
-		MovieSummary movie = restTemplate.getForObject("http://movie-info-service:8089/movies/" + rating.getMovieId(), MovieSummary.class);
+		MovieSummary movie = restTemplate.getForObject("http://movie-info-service/movies/" + rating.getMovieId(), MovieSummary.class);
 		return new CatalogItem(movie.getTitle(), movie.getOverview(), rating.getRating());
         
 	}

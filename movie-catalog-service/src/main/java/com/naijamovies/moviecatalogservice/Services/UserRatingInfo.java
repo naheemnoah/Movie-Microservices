@@ -10,6 +10,7 @@ import org.springframework.web.client.RestTemplate;
 import com.naijamovies.moviecatalogservice.Entity.Rating;
 import com.naijamovies.moviecatalogservice.Entity.UserRating;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 
 @Service
 public class UserRatingInfo {
@@ -17,9 +18,15 @@ public class UserRatingInfo {
 	@Autowired
 	private RestTemplate restTemplate;
 	
-	@HystrixCommand(fallbackMethod = "getFallbackUserRating")
+	@HystrixCommand(
+			fallbackMethod = "getFallbackUserRating",
+			threadPoolKey = "userRatingInfoPool",
+			threadPoolProperties = {
+					@HystrixProperty(name = "coreSize", value = "20"),
+					@HystrixProperty(name = "maxQueueSize", value = "10"),
+			})
 	public UserRating getUserRating(@PathVariable("userId") String userId) {
-		return restTemplate.getForObject("http://ratings-data-service/ratingsdata/users/" + userId, UserRating.class);
+		return restTemplate.getForObject("http://ratings-data-service/ratingsdata/user/" + userId, UserRating.class);
 	}
 	
 	public UserRating getFallbackUserRating(@PathVariable("userId") String userId) {

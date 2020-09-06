@@ -29,10 +29,10 @@ public class MovieCatalogServiceApplication {
 	
 	
 	//creating web client builder for Reactive Programming
-	@Bean
-	public WebClient.Builder getWebClientBuilder(){
-		return WebClient.builder();
-	}
+//	@Bean
+//	public WebClient.Builder getWebClientBuilder(){
+//		return WebClient.builder();
+//	}
 	public static void main(String[] args) {
 		SpringApplication.run(MovieCatalogServiceApplication.class, args);
 	}

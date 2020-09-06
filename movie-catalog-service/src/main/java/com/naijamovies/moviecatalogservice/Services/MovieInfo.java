@@ -33,3 +33,5 @@ public class MovieInfo {
 		return new CatalogItem("Movie name not found", "", rating.getRating());
 	}
 }
+
+

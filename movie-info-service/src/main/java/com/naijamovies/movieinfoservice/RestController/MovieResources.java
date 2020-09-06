@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import com.naijamovies.movieinfoservice.Entity.Movie;
+//import com.naijamovies.movieinfoservice.Services.MovieInfo;
 import com.naijamovies.movieinfoservice.Entity.MovieSummary;
 
 @RestController
@@ -21,11 +22,7 @@ public class MovieResources {
 			+ "")
 	private String apiKey;
 	
-//	@RequestMapping("/{movieId}")
-//	public Movie getMovieInfo(@PathVariable("movieId") String movieId) {
-//		return new Movie(movieId, "Name for ID " + movieId);
-//	}
-	
+
 	@RequestMapping("/{movieId}")
 	public Movie getMovieInfo(@PathVariable("movieId") String movieId) {
 		MovieSummary movieSummary = restTemplate.getForObject(
@@ -34,5 +31,4 @@ public class MovieResources {
 		);
 		return new Movie(movieId, movieSummary.getTitle(), movieSummary.getOverview());
 	}
-  
 }
